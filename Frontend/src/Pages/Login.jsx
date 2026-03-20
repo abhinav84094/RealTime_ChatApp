@@ -2,6 +2,8 @@ import React, {useState} from 'react'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { serverUrl } from '../main';
+import { useDispatch, useSelector } from 'react-redux';
+import { setUserData } from '../redux/userSlice';
 
 function Login() {
     let navigate = useNavigate();
@@ -11,9 +13,13 @@ function Login() {
     let [password, setPassword] = useState("");
     let [loading, setLoading] = useState(false);
     let [error, setError] = useState("");
+    let dispatch = useDispatch();
+    let {userData } = useSelector(state => state.user);
+    console.log("userData : ", userData);
     
     
         const handleLogin = async (e)=>{
+           
             e.preventDefault();
             setError("")
             setLoading(true);
@@ -21,14 +27,15 @@ function Login() {
                 const res = await axios.post(`${serverUrl}/api/auth/login`, {
                    email, password
                 }, {withCredentials:true})
-                console.log(res);
+                
+                dispatch(setUserData(res.data));
                 setEmail("")
                 setPassword("")
             }
             catch(err){
                 setError(err?.response?.data?.message || "Something went wrong");
 
-                console.log(err.response.data);
+                console.log(err?.response?.data);
             }
             finally{
                 setLoading(false);
